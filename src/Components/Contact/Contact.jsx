@@ -1,27 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Contact.css';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 const Contact = () => {
-  const [name, setName] = useState(null);
-  const [email, setEmail] = useState(null);
-  const [phone, setPhone] = useState(null);
-  const [object, setObject] = useState(null);
-  const [message, setMessage] = useState(null);
+  const schema = yup
+    .object({
+      name: yup
+        .string()
+        .max(50)
+        .required('Merci de rentrer votre nom et prénom'),
+      email: yup
+        .string()
+        .email('Merci de renter une adresse mail valide')
+        .max(255)
+        .required('Merci de rentrer une adresse mail'),
+      phone: yup
+        .number()
+        .typeError('Merci de rentrer une numero de téléphone valide')
+        .required('Merci de rentrer un numero de téléphone'),
+      message: yup.string().required('Merci de rentrer un message'),
+    })
+    .required();
 
-  const values = {
-    name,
-    email,
-    phone,
-    object,
-    message,
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  const onSubmit = () => {
+    alert("Merci d'avoir rempli notre formulaire");
   };
 
-  console.log(values);
   return (
     <div>
       <h1 className="h1-contact">Formulaire de Contact</h1>
 
-      <form className="contact-form">
+      <form className="contact-form" onSubmit={handleSubmit(onSubmit)}>
         <div className="form-content">
           <label htmlfor="name" className="label-contact">
             Nom et Prenom :
@@ -32,9 +51,9 @@ const Contact = () => {
             id="name"
             nanme="name"
             placeholder="Nom et Prenom"
-            onChange={(e) => setName(e.target.value)}
+            {...register('name')}
           />
-
+          {errors.name && <p id="c-yup">{errors.name.message}</p>}
           <label htmlfor="email" className="label-contact">
             Adresse mail :
           </label>
@@ -44,9 +63,9 @@ const Contact = () => {
             id="email"
             nanme="email"
             placeholder="exemple@gmail.com"
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email')}
           />
-
+          {errors.email && <p id="c-yup">{errors.email.message}</p>}
           <label htmlfor="phone" className="label-contact">
             N° Téléphone :
           </label>
@@ -56,16 +75,16 @@ const Contact = () => {
             id="phone"
             nanme="phone"
             placeholder="+12345678"
-            onChange={(e) => setPhone(e.target.value)}
+            {...register('phone')}
           />
-
+          {errors.phone && <p id="c-yup">{errors.phone.message}</p>}
           <label for="Sujet" className="label-contact">
             Sujet:
           </label>
           <select
             className="select-contact"
             name="Subject"
-            onChange={(e) => setObject(e.target.value)}
+            {...register('Subject')}
           >
             <option selected>Selectionner l'objet de la demande</option>
             <option value="devis">Devis</option>
@@ -84,9 +103,9 @@ const Contact = () => {
             cols="20"
             rows="10"
             name="message"
-            onChange={(e) => setMessage(e.target.value)}
+            {...register('message')}
           ></textarea>
-
+          {errors.message && <p id="c-yup">{errors.message.message}</p>}
           <label className="label-contact">
             <input type="checkbox" /> En cochant cette case, j'accepte de
             recevoir des informations sur les différentes offres disponibles.
