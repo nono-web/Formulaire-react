@@ -3,6 +3,7 @@ import './Contact.css';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import emailjs from '@emailjs/browser';
 
 const Contact = () => {
   const schema = yup
@@ -32,8 +33,27 @@ const Contact = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = () => {
-    alert("Merci d'avoir rempli notre formulaire");
+  const onSubmit = (data, r) => {
+    alert('😀 Merci pour votre message, il sera traité au plus vite 😀');
+    const templateId = 'template_ca3dujb';
+    const serviceId = 'service_co7m6sq';
+    sendFeedback(serviceId, templateId, {
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
+      reply_to: r.target.reset(),
+    });
+  };
+
+  const sendFeedback = (serviceId, templateId, variables) => {
+    emailjs
+      .send(serviceId, templateId, variables, 'd5d0D6g3LVE9sn3DN')
+      .then((res) => {
+        console.log('succes');
+      })
+      .catch((err) => console.error('Il y a une erreur'));
   };
 
   return (
@@ -84,7 +104,7 @@ const Contact = () => {
           <select
             className="select-contact"
             name="Subject"
-            {...register('Subject')}
+            {...register('subject')}
           >
             <option selected>Selectionner l'objet de la demande</option>
             <option value="devis">Devis</option>
@@ -106,7 +126,7 @@ const Contact = () => {
             {...register('message')}
           ></textarea>
           {errors.message && <p id="c-yup">{errors.message.message}</p>}
-          <label className="label-contact">
+          <label htmlFor="checkbox" className="label-contact">
             <input type="checkbox" /> En cochant cette case, j'accepte de
             recevoir des informations sur les différentes offres disponibles.
           </label>
